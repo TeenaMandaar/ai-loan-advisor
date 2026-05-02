@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ai-loan-advisor
+    env: python
+    region: singapore        # Closest free region to India
+    plan: free
+    rootDir: backend         # All Python files live here
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+    # Environment variables — set GROQ_API_KEY in the Render dashboard
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false          # You will paste the key manually in Render UI
+      - key: PYTHON_VERSION
+        value: 3.11.0
