@@ -1,133 +1,121 @@
-# AI Loan Advisor 🏦
+# FinAI — AI Loan Advisor 🏦
 
-> **An AI-powered loan advisor that chats with users, understands their finances, calculates EMI, assesses risk, and delivers clear, explainable recommendations — built entirely with free and open-source tools.**
+> Free, open-source conversational AI that helps Indians make smarter loan decisions — no jargon, no commissions.
 
-![Version](https://img.shields.io/badge/version-1.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Stack](https://img.shields.io/badge/stack-FastAPI%20%2B%20Groq%20%2B%20SQLite-purple)
-
----
-
-## 🚀 Tech Stack
-
-| Layer | Tool | Why |
-|-------|------|-----|
-| Frontend | HTML + CSS + Vanilla JS | Zero framework overhead |
-| Backend | FastAPI (Python) | Fast, async, auto docs |
-| AI / LLM | Groq API — Llama 3 (free tier) | Fastest free LLM inference |
-| Database | SQLite | Built into Python |
-| Deployment | Render.com (free tier) | Free HTTPS subdomain |
+![Stack](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square)
+![Stack](https://img.shields.io/badge/AI-Groq%20Llama%203-7C3AED?style=flat-square)
+![Stack](https://img.shields.io/badge/DB-SQLite-003B57?style=flat-square)
+![Stack](https://img.shields.io/badge/Cost-₹0%2Fmonth-22C55E?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
 ---
 
-## 📁 Project Structure
+## What It Does
+
+Type your loan need in plain English — FinAI understands, calculates, and advises:
+
+```
+"I earn ₹60,000/month and want a home loan of ₹30 lakhs for 20 years"
+    → EMI: ₹26,218/month
+    → Total Interest: ₹32,92,299
+    → DTI: 43.7% — Moderate Risk ⚠️
+```
+
+**Key guarantee:** All financial numbers come from real Python math — the LLM never invents figures.
+
+---
+
+## Features
+
+| Feature | Status |
+|---|---|
+| Conversational AI chat (Groq Llama 3.3-70B) | ✅ |
+| Real EMI calculation (standard formula) | ✅ |
+| Debt-to-Income (DTI) risk assessment | ✅ |
+| Risk badge: Low / Moderate / High | ✅ |
+| Manual EMI calculator with pie chart | ✅ |
+| Session history (SQLite) | ✅ |
+| Dark / Light mode | ✅ |
+| Mobile responsive | ✅ |
+| Anti-hallucination engine | ✅ |
+
+---
+
+## Quick Start
+
+### 1. Clone & install
+
+```bash
+git clone https://github.com/TeenaMandaar/ai-loan-advisor.git
+cd ai-loan-advisor/backend
+pip install -r requirements.txt
+```
+
+### 2. Add your Groq API key
+
+Create `backend/.env`:
+```
+GROQ_API_KEY=your_key_here
+```
+
+Get a free key at [console.groq.com](https://console.groq.com) — no credit card needed.
+
+### 3. Run
+
+```bash
+cd backend
+uvicorn main:app --reload
+```
+
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
+
+---
+
+## Project Structure
 
 ```
 ai-loan-advisor/
 ├── backend/
-│   ├── main.py          # FastAPI app entry point + all routes
-│   ├── emi.py           # EMI + DTI calculation logic
-│   ├── groq_chat.py     # Groq LLM (Llama 3) integration
+│   ├── main.py          # FastAPI app + API routes
+│   ├── emi.py           # EMI formula, DTI, risk engine
+│   ├── groq_chat.py     # Groq LLM + model fallback chain
 │   ├── database.py      # SQLite chat history
 │   └── requirements.txt
 ├── frontend/
-│   ├── index.html       # Main chat interface
-│   ├── style.css        # Dark theme + animations
-│   └── app.js           # Fetch calls + UI logic
-├── render.yaml          # Render.com deployment config
-├── .gitignore
+│   ├── index.html       # Single-page app
+│   ├── style.css        # Design system
+│   └── app.js           # UI logic + API calls
+├── PRODUCT_DOCUMENT.md  # Full product spec
 └── README.md
 ```
 
 ---
 
-## 🏗️ Development Parts — All Complete ✅
+## Tech Stack
 
-| Part | Feature | Status |
-|------|---------|--------|
-| Part 1 | Basic HTML Chat UI | ✅ Done |
-| Part 2 | FastAPI Backend + EMI Logic | ✅ Done |
-| Part 3 | Connect Frontend to Backend | ✅ Done |
-| Part 4 | Groq LLM Integration | ✅ Done |
-| Part 5 | SQLite Chat History | ✅ Done |
-| Part 6 | Risk Engine + Recommendations | ✅ Done |
-| Part 7 | Polish + Deploy on Render.com | ✅ Done |
+| Layer | Tool | Cost |
+|---|---|---|
+| Frontend | HTML + CSS + Vanilla JS | Free |
+| Backend | FastAPI + Python | Free |
+| AI | Groq Llama 3.3-70B | Free tier |
+| Database | SQLite | Free |
+| Hosting | Render.com | Free tier |
 
 ---
 
-## ▶️ Running Locally
+## API
 
-### 1. Clone the repo
-```bash
-git clone https://github.com/YOUR_USERNAME/ai-loan-advisor.git
-cd ai-loan-advisor
-```
-
-### 2. Set up your Groq API Key
-Create a file `backend/.env`:
-```env
-GROQ_API_KEY=gsk_your_key_here
-```
-Get a free key at [console.groq.com](https://console.groq.com)
-
-### 3. Install dependencies & start the backend
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-
-### 4. Open in browser
-Navigate to: **http://127.0.0.1:8000**
-
-> The FastAPI server serves both the API *and* the frontend from one port.
+| Endpoint | Method | Description |
+|---|---|---|
+| `/chat` | POST | AI chat with EMI calculation |
+| `/calculate` | POST | Direct EMI + DTI (no LLM) |
+| `/history` | GET | Fetch session history |
+| `/history` | DELETE | Clear session |
+| `/docs` | GET | Swagger UI |
 
 ---
 
-## 🌐 Deploying to Render.com (Free)
+## Built By
 
-### Step 1 — Push to GitHub
-```bash
-git init
-git add .
-git commit -m "Initial commit — AI Loan Advisor MVP"
-git remote add origin https://github.com/YOUR_USERNAME/ai-loan-advisor.git
-git push -u origin main
-```
-
-### Step 2 — Connect to Render
-1. Go to [dashboard.render.com](https://dashboard.render.com)
-2. Click **"New +"** → **"Web Service"**
-3. Connect your GitHub account and select this repository
-4. Render will auto-detect the `render.yaml` — click **"Apply"**
-
-### Step 3 — Add your Groq API Key
-In the Render dashboard for your service:
-1. Go to **"Environment"** tab
-2. Add a new variable: `GROQ_API_KEY` = `gsk_your_actual_key`
-3. Click **"Save Changes"**
-
-### Step 4 — Deploy!
-Render will build and deploy automatically. Your live URL will be:
-```
-https://ai-loan-advisor.onrender.com
-```
-
-> ⚠️ **Note:** Render's free tier spins down after 15 minutes of inactivity. The first request may take ~30 seconds to wake up. This is normal.
-
-> ⚠️ **SQLite on free tier:** Render's filesystem is ephemeral — chat history resets on each redeploy. For persistent history, upgrade to a paid tier or switch to PostgreSQL.
-
----
-
-## 🔌 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/health` | Server health check |
-| `POST` | `/calculate` | Direct EMI + DTI calculation |
-| `POST` | `/chat` | AI chat (Groq Llama 3 powered) |
-| `GET` | `/history` | Retrieve chat history |
-| `DELETE` | `/history` | Clear chat history |
-| `GET` | `/docs` | Swagger API documentation |
-
----
-
-*Built with FastAPI, Groq API (Llama 3), SQLite, HTML/CSS/JS | All tools free & open-source*
+**Teena Mandaar** · May 2025  
+[GitHub](https://github.com/TeenaMandaar) · Open Source · MIT License
