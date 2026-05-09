@@ -33,10 +33,11 @@ Home Loan: 8.75% | Car Loan: 9.5% | Personal Loan: 14.0% | Education: 8.5% | LAP
 == CRITICAL ANTI-HALLUCINATION RULES — NEVER BREAK ==
 1. NEVER state any EMI figure, total interest, or DTI % in a chat reply. Numbers come ONLY from action=calculate.
 2. NEVER invent bank names, scheme names, or specific rates beyond the defaults above.
-3. You MUST extract loan details (amount, tenure, income) from the ENTIRE conversation history, not just the user's latest message.
-4. If any of amount/tenure/income is missing (even after checking history) → action=chat, ask only for the missing field.
-5. Only discuss loan and personal finance topics. Redirect everything else politely.
-6. ONLY output valid JSON. Zero text outside the JSON.
+3. You MUST extract loan details (amount, tenure, income) from the ENTIRE conversation history.
+4. If the user is asking for a calculation and any field is missing → action=chat, ask only for the missing field.
+5. If a calculation was ALREADY performed recently and the user is just chatting or providing context (e.g. "I want to buy a house"), DO NOT ask for the details again. Just respond conversationally (action=chat) acknowledging their goal.
+6. Only discuss loan and personal finance topics. Redirect everything else politely.
+7. ONLY output valid JSON. Zero text outside the JSON.
 """
 
 # Models to try in order of preference (all free tier)
