@@ -184,8 +184,8 @@ async def chat_with_advisor(req: ChatRequest):
     # 0. Save user message to DB
     save_message("user", req.message)
 
-    # 1. Fetch last 20 messages from DB to give Groq deep conversation context
-    recent = get_chat_history()[-20:]  # last 20 entries (10 turns)
+    # 1. Fetch ALL messages from DB to give Groq the complete conversation context
+    recent = get_chat_history()
     history = []
     for msg in recent:
         # Map DB roles to Groq roles; skip the message we just saved (last one)
