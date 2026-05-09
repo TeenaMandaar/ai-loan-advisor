@@ -33,9 +33,10 @@ Home Loan: 8.75% | Car Loan: 9.5% | Personal Loan: 14.0% | Education: 8.5% | LAP
 == CRITICAL ANTI-HALLUCINATION RULES — NEVER BREAK ==
 1. NEVER state any EMI figure, total interest, or DTI % in a chat reply. Numbers come ONLY from action=calculate.
 2. NEVER invent bank names, scheme names, or specific rates beyond the defaults above.
-3. If any of amount/tenure/income is missing → action=chat, ask only for the missing field.
-4. Only discuss loan and personal finance topics. Redirect everything else politely.
-5. ONLY output valid JSON. Zero text outside the JSON.
+3. You MUST extract loan details (amount, tenure, income) from the ENTIRE conversation history, not just the user's latest message.
+4. If any of amount/tenure/income is missing (even after checking history) → action=chat, ask only for the missing field.
+5. Only discuss loan and personal finance topics. Redirect everything else politely.
+6. ONLY output valid JSON. Zero text outside the JSON.
 """
 
 # Models to try in order of preference (all free tier)
@@ -46,9 +47,10 @@ MODELS = [
     "mixtral-8x7b-32768",
 ]
 
-def analyze_user_message(user_message: str) -> dict:
+def analyze_user_message(user_message: str, history: list[dict] | None = None) -> dict:
     """
-    Sends the user message to Groq (Llama 3) and returns the parsed JSON intent.
+    Sends the user message to Groq with conversation history for multi-turn context.
+    history: list of {"role": "user"|"assistant", "content": str} dicts (most recent last).
     Automatically falls back to next model if one is unavailable.
     """
     if not os.environ.get("GROQ_API_KEY"):
@@ -57,14 +59,17 @@ def analyze_user_message(user_message: str) -> dict:
             "reply": "⚠️ Groq API key is missing. Please set GROQ_API_KEY in your .env file to enable AI chat."
         }
 
+    # Build messages: system + history + current user message
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    if history:
+        messages.extend(history)
+    messages.append({"role": "user", "content": user_message})
+
     last_error = None
     for model in MODELS:
         try:
             chat_completion = client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_message}
-                ],
+                messages=messages,
                 model=model,
                 response_format={"type": "json_object"},
                 temperature=0.15,
@@ -78,10 +83,8 @@ def analyze_user_message(user_message: str) -> dict:
             err_str = str(e)
             print(f"[Groq] Model {model} failed: {err_str}")
             last_error = err_str
-            # Only skip to next model if it's a model-level error
             if "decommissioned" in err_str or "not found" in err_str.lower() or "deprecated" in err_str.lower():
                 continue
-            # For other errors (rate limit, network), return fallback immediately
             break
 
     return {

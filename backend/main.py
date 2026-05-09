@@ -184,10 +184,23 @@ async def chat_with_advisor(req: ChatRequest):
     # 0. Save user message to DB
     save_message("user", req.message)
 
-    # 1. Ask Groq to extract intent
-    analysis = analyze_user_message(req.message)
-    
-    # 2. If it's just a chat response
+    # 1. Fetch last 6 messages from DB to give Groq conversation context
+    recent = get_chat_history()[-6:]  # last 6 entries (3 turns)
+    history = []
+    for msg in recent:
+        # Map DB roles to Groq roles; skip the message we just saved (last one)
+        if msg["role"] == "user":
+            history.append({"role": "user", "content": msg["content"]})
+        elif msg["role"] == "bot":
+            history.append({"role": "assistant", "content": msg["content"]})
+    # Remove the last item — it's the user message we just saved (already added as current)
+    if history and history[-1]["role"] == "user":
+        history = history[:-1]
+
+    # 2. Ask Groq to extract intent — with conversation memory
+    analysis = analyze_user_message(req.message, history=history)
+
+    # 3. If it's just a chat response
     if analysis.get("action") != "calculate":
         reply_text = analysis.get("reply", "I'm not sure how to respond to that.")
         save_message("bot", reply_text)
