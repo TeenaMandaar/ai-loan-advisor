@@ -264,8 +264,14 @@ async def chat_with_advisor(req: ChatRequest):
 
 @app.get("/history")
 async def get_history():
-    """Returns the stored chat history."""
-    return {"messages": get_chat_history()}
+    """Returns the stored chat history, stripping any legacy HTML from old responses."""
+    raw_history = get_chat_history()
+    clean_history = []
+    for msg in raw_history:
+        if msg["role"] == "bot" and "<div class=\"emi-card\">" in msg["content"]:
+            msg["content"] = msg["content"].split("<div class=\"emi-card\">")[0].strip()
+        clean_history.append(msg)
+    return {"messages": clean_history}
 
 @app.delete("/history")
 async def clear_history():
