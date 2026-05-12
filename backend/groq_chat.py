@@ -1,6 +1,5 @@
 """
-groq_chat.py — Groq LLM Integration
-AI Loan Advisor | Part 4
+groq_chat.py — Groq LLM Integration (Agentic Terminal Version)
 """
 
 import os
@@ -8,39 +7,45 @@ import json
 from dotenv import load_dotenv
 from groq import Groq
 
-# Load environment variables (e.g. GROQ_API_KEY)
 load_dotenv()
-
-# Initialize Groq client
 client = Groq(api_key=os.environ.get("GROQ_API_KEY", ""))
 
 SYSTEM_PROMPT = """
-You are FinAI, a precise AI Loan Advisor for Indian users.
-Always respond in strictly valid JSON — no text outside the JSON object.
+You are FinAI, an elite, agentic Financial Analysis Terminal. 
+Your tone is highly professional, concise, and analytical — like a Bloomberg terminal or a senior Stripe engineer.
+You process natural language into strict JSON parameters for the backend execution engine.
 
-== SCENARIO A: General / greeting / missing info ==
-{ "action": "chat", "reply": "2-3 sentence helpful response. Never invent numbers." }
+== SCENARIO A: General Chat / Missing Data ==
+{ 
+  "action": "chat", 
+  "reply": "Brief, analytical response. Acknowledge missing parameters (Principal, Tenure, or Income) if required for modeling." 
+}
 
-== SCENARIO B: User gives loan amount + tenure + monthly income ==
-{ "action": "calculate", "principal": 3000000, "annual_rate": 8.75, "tenure_years": 20, "monthly_income": 60000, "existing_emi": 0, "reply": "One sentence intro." }
+== SCENARIO B: Execute Calculation ==
+If the conversation history contains Principal (Amount), Tenure, and Monthly Income, trigger the calculation engine:
+{ 
+  "action": "calculate", 
+  "principal": 3000000, 
+  "annual_rate": 8.75, 
+  "tenure_years": 20, 
+  "monthly_income": 60000, 
+  "existing_emi": 0, 
+  "reply": "Provide a 1-2 sentence high-level financial insight here. The UI Ledger will display the raw numbers, so DO NOT repeat the EMI or Interest numbers in this reply. Focus on strategy or risk." 
+}
 
 == NUMBER CONVERSION ==
-1 Lakh=100000 | 1 Crore=10000000 | "60k"=60000 | "2L"=200000
+1 Lakh = 100000 | 1 Crore = 10000000 | "60k" = 60000 | "2L" = 200000
 
-== DEFAULT RATES (use if user doesn't specify) ==
-Home Loan: 8.75% | Car Loan: 9.5% | Personal Loan: 14.0% | Education: 8.5% | LAP: 10.0%
+== DEFAULT RATES ==
+Home: 8.75% | Car: 9.5% | Personal: 14.0% | Education: 8.5% | LAP: 10.0%
 
-== CRITICAL ANTI-HALLUCINATION RULES — NEVER BREAK ==
-1. NEVER state any EMI figure, total interest, or DTI % in a chat reply. Numbers come ONLY from action=calculate.
-2. NEVER invent bank names, scheme names, or specific rates beyond the defaults above.
-3. You MUST extract loan details (amount, tenure, income) from the ENTIRE conversation history.
-4. If the user is asking for a calculation and any field is missing → action=chat, ask only for the missing field.
-5. If a calculation was ALREADY performed recently and the user is just chatting or providing context (e.g. "I want to buy a house"), DO NOT ask for the details again. Just respond conversationally (action=chat) acknowledging their goal.
-6. Only discuss loan and personal finance topics. Redirect everything else politely.
-7. ONLY output valid JSON. Zero text outside the JSON.
+== CRITICAL RULES ==
+1. The UI has a "Live Ledger" panel that shows exact EMI, DTI, and Interest numbers. Therefore, NEVER state EMI or total interest in your `reply`. Only provide actionable financial insights.
+2. Extract parameters from the ENTIRE conversation history.
+3. If an analysis was just run and the user adds context (e.g., "I want to buy a house"), respond analytically via "chat" action without demanding numbers again.
+4. ONLY output valid JSON. Zero text outside the JSON object.
 """
 
-# Models to try in order of preference (all free tier)
 MODELS = [
     "llama-3.3-70b-versatile",
     "llama-3.1-70b-versatile",
@@ -49,46 +54,31 @@ MODELS = [
 ]
 
 def analyze_user_message(user_message: str, history: list[dict] | None = None) -> dict:
-    """
-    Sends the user message to Groq with conversation history for multi-turn context.
-    history: list of {"role": "user"|"assistant", "content": str} dicts (most recent last).
-    Automatically falls back to next model if one is unavailable.
-    """
     if not os.environ.get("GROQ_API_KEY"):
-        return {
-            "action": "chat",
-            "reply": "⚠️ Groq API key is missing. Please set GROQ_API_KEY in your .env file to enable AI chat."
-        }
+        return {"action": "chat", "reply": "System Error: GROQ_API_KEY missing."}
 
-    # Build messages: system + history + current user message
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     if history:
         messages.extend(history)
     messages.append({"role": "user", "content": user_message})
 
-    last_error = None
     for model in MODELS:
         try:
             chat_completion = client.chat.completions.create(
                 messages=messages,
                 model=model,
                 response_format={"type": "json_object"},
-                temperature=0.15,
+                temperature=0.1,  # Lower temperature for more analytical/precise output
                 max_tokens=512,
             )
             response_text = chat_completion.choices[0].message.content
-            print(f"[Groq] Used model: {model}")
+            print(f"[FinAI Agent] Model used: {model}")
             return json.loads(response_text)
 
         except Exception as e:
             err_str = str(e)
-            print(f"[Groq] Model {model} failed: {err_str}")
-            last_error = err_str
-            if "decommissioned" in err_str or "not found" in err_str.lower() or "deprecated" in err_str.lower():
+            if "decommissioned" in err_str or "not found" in err_str.lower():
                 continue
             break
 
-    return {
-        "action": "chat",
-        "reply": "I'm having a little trouble connecting right now. Please try again in a moment! 🙏"
-    }
+    return {"action": "chat", "reply": "Connection to inference engine failed. Retrying..."}

@@ -222,12 +222,9 @@ async def chat_with_advisor(req: ChatRequest):
         )
         
         if loan_input.principal <= 0 or loan_input.tenure_years <= 0 or loan_input.monthly_income <= 0:
-            reply_text = "I almost have enough details! Could you please specify the loan amount, tenure (years), and your monthly income?"
+            reply_text = "Insufficient parameters. Please provide Loan Amount, Tenure, and Monthly Income."
             save_message("bot", reply_text)
-            return ChatResponse(
-                type="chat",
-                reply=reply_text
-            )
+            return ChatResponse(type="chat", reply=reply_text)
             
         result = process_loan(loan_input)
         
@@ -248,38 +245,22 @@ async def chat_with_advisor(req: ChatRequest):
             emi_formatted=format_inr(result.emi),
             total_payment_formatted=format_inr(result.total_payment),
             total_interest_formatted=format_inr(result.total_interest),
-            summary=build_summary(result),
+            summary=analysis.get("reply", "Analysis complete."),
         )
         
-        summary_text = build_summary(result)
-        emi_html = f"""
-        <div class="emi-card">
-          <div class="emi-row">
-            <span class="emi-label">Monthly EMI</span>
-            <span class="emi-value">{calc_response.emi_formatted}</span>
-          </div>
-          <div class="emi-row">
-            <span class="emi-label">Risk Level</span>
-            <span class="risk-badge risk-{result.risk_level.lower()}">{result.risk_level}</span>
-          </div>
-        </div>
-        """
-        
-        # Save bot response with HTML to DB
-        save_message("bot", summary_text, emi_html)
+        # Save bot insight to DB without HTML
+        save_message("bot", calc_response.summary)
 
         return ChatResponse(
             type="calculate",
+            reply=calc_response.summary,
             calculation_result=calc_response
         )
         
     except Exception as e:
-        reply_text = f"I tried to calculate that, but ran into an issue: {str(e)}"
+        reply_text = f"Execution error: {str(e)}"
         save_message("bot", reply_text)
-        return ChatResponse(
-            type="chat",
-            reply=reply_text
-        )
+        return ChatResponse(type="chat", reply=reply_text)
 
 @app.get("/history")
 async def get_history():
