@@ -12,9 +12,10 @@ const ledgRate = document.getElementById('ledg-rate');
 const ledgEmi = document.getElementById('ledg-emi');
 const ledgInterest = document.getElementById('ledg-interest');
 const ledgDti = document.getElementById('ledg-dti');
-const ledgRisk = document.getElementById('ledg-risk');
-const ledgDtiBar = document.getElementById('ledg-dti-bar');
-const trajectoryGraph = document.getElementById('trajectory-graph');
+const ledgRiskText = document.getElementById('ledg-risk-text');
+const ledgRiskDot = document.getElementById('ledg-risk-dot');
+const sparkP = document.getElementById('spark-p');
+const sparkI = document.getElementById('spark-i');
 
 const API_BASE = 'http://127.0.0.1:8000';
 let isTyping = false;
@@ -23,7 +24,7 @@ let isTyping = false;
 const fmt = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
 
 userInput.addEventListener('input', () => {
-  userInput.style.height = '24px';
+  userInput.style.height = '20px';
   userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
   btnSend.disabled = userInput.value.trim().length === 0 || isTyping;
 });
@@ -72,32 +73,19 @@ function updateLedger(data) {
   ledgInterest.textContent = data.total_interest_formatted;
   
   ledgDti.textContent = `${data.dti_ratio}%`;
-  ledgRisk.textContent = data.risk_level;
   
+  // Update Risk Pill
+  ledgRiskText.textContent = data.risk_level;
   const riskClass = data.risk_level.toLowerCase();
-  ledgRisk.className = `stat-value stat-accent`;
-  if (riskClass === 'high') ledgRisk.style.color = 'var(--danger)';
-  if (riskClass === 'moderate') ledgRisk.style.color = 'var(--warning)';
-  if (riskClass === 'low') ledgRisk.style.color = 'var(--success)';
+  ledgRiskDot.className = `risk-dot ${riskClass}`;
 
-  ledgDtiBar.className = `dti-fill risk-${riskClass}`;
-  ledgDtiBar.style.width = `${Math.min(data.dti_ratio, 100)}%`;
-
-  // Draw simple SVG Trajectory Graph (Antigravity feature)
-  drawTrajectory(data.principal, data.total_payment, data.tenure_years);
-}
-
-function drawTrajectory(principal, totalPayment, years) {
-  // Simple SVG line graph showing Principal vs Total over time
-  const interest = totalPayment - principal;
-  trajectoryGraph.innerHTML = `
-    <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <!-- Principal Line (Flat-ish) -->
-      <line x1="0" y1="90" x2="100" y2="40" stroke="var(--text-muted)" stroke-width="2" opacity="0.5" />
-      <!-- Total Payment Line (Curved up) -->
-      <path d="M 0 90 Q 50 60 100 10" fill="none" stroke="var(--accent)" stroke-width="2" />
-    </svg>
-  `;
+  // Draw Sparkline
+  const total = data.total_payment;
+  const pPercent = (data.principal / total) * 100;
+  const iPercent = (data.total_interest / total) * 100;
+  
+  sparkP.style.width = `${pPercent}%`;
+  sparkI.style.width = `${iPercent}%`;
 }
 
 async function sendMessage() {

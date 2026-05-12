@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,7 +27,7 @@
     <!-- ═══ CENTER PANEL (CHAT) ═══ -->
     <main class="center-panel">
       <header class="top-bar">
-        <span>FinAI Agent // Status: Online</span>
+        FinAI Agent // Status: Online <span class="blinking-cursor"></span>
       </header>
       
       <div class="messages" id="messages">
@@ -36,7 +36,7 @@
 
       <div class="input-area">
         <div class="input-box">
-          <textarea id="user-input" class="user-textarea" placeholder="Enter loan parameters..." rows="1"></textarea>
+          <textarea id="user-input" class="user-textarea" placeholder="Enter parameters... (e.g. 60k income, 30L loan for 10 yrs)" rows="1"></textarea>
           <button class="send-btn" id="btn-send" disabled>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
           </button>
@@ -47,7 +47,7 @@
     <!-- ═══ RIGHT PANEL (LIVE LEDGER) ═══ -->
     <aside class="ledger-panel">
       <header class="ledger-header">
-        <span>Live Ledger</span>
+        Live Ledger
       </header>
       
       <div class="ledger-content">
@@ -66,7 +66,7 @@
             <span class="stat-label">Interest Rate</span>
             <span class="stat-value" id="ledg-rate">--</span>
           </div>
-          <div style="height: 1px; background: var(--border); margin: 12px 0;"></div>
+          <div style="height: 1px; background: var(--border); margin: 16px 0;"></div>
           <div class="ledger-stat">
             <span class="stat-label">Monthly EMI</span>
             <span class="stat-value stat-accent" id="ledg-emi">--</span>
@@ -78,24 +78,29 @@
         </div>
 
         <div class="ledger-card" id="ledger-risk">
-          <h3>Risk Assessment (DTI)</h3>
+          <h3>Risk Assessment</h3>
           <div class="ledger-stat">
             <span class="stat-label">DTI Ratio</span>
             <span class="stat-value" id="ledg-dti">--</span>
           </div>
           <div class="ledger-stat">
-            <span class="stat-label">Risk Level</span>
-            <span class="stat-value" id="ledg-risk">--</span>
-          </div>
-          <div class="dti-gauge-container">
-            <div class="dti-fill" id="ledg-dti-bar"></div>
+            <span class="stat-label">Status</span>
+            <div class="risk-pill-container">
+              <div class="risk-dot" id="ledg-risk-dot"></div>
+              <span id="ledg-risk-text">--</span>
+            </div>
           </div>
         </div>
 
         <div class="ledger-card">
           <h3>Interest Trajectory</h3>
-          <div class="trajectory-graph" id="trajectory-graph">
-            <!-- Simple SVG line graph will go here -->
+          <div class="sparkline-container">
+            <div class="spark-principal" id="spark-p" style="width: 0%"></div>
+            <div class="spark-interest" id="spark-i" style="width: 0%"></div>
+          </div>
+          <div class="spark-legend">
+            <span>Principal</span>
+            <span>Interest Burden</span>
           </div>
         </div>
       </div>
