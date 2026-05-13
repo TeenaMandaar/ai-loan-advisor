@@ -553,89 +553,117 @@ body {
 
 /* ═══════════════════════════════════════
    RESPONSIVE — MOBILE (≤ 768px)
-   Layout: top-nav → chat (fixed height) → ledger (full, scrollable)
-   Desktop CSS is NOT touched — only overrides inside this block apply.
+
+   STRATEGY: Keep html/body locked (overflow:hidden) to preserve
+   the desktop floating-island look. Instead, make .app-shell the
+   scroll container on mobile. The input bar is position:sticky
+   so it stays pinned to the bottom of the viewport while the
+   user scrolls through messages and Live Ledger cards.
 ═══════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* 0. CRITICAL: override the global html { overflow: hidden } that blocks mobile scroll */
-  html {
-    height: auto;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch; /* smooth momentum scroll on iOS */
-  }
-
-  /* 1. Let the page scroll vertically so the ledger is reachable */
+  /* 1. body: block layout, no flex centering */
   body {
-    padding: 0;
-    height: auto;           /* ← no fixed height, page can grow */
-    min-height: 100dvh;
-    overflow-y: auto;       /* ← page-level scroll reveals ledger */
-    overflow-x: hidden;
-    align-items: stretch;
-    justify-content: stretch;
-    display: block;         /* ← stop centring flex, let content stack */
+    display: block !important;
+    padding: 0 !important;
+    height: 100dvh !important;
+    overflow: hidden !important; /* body stays locked; app-shell scrolls */
   }
 
-  /* 2. App shell stacks in a single column, grows to fit all panels */
+  /* 2. APP-SHELL is the scroll container ─────────────────────────
+     height: 100dvh + overflow-y: auto = the shell scrolls.
+     Everything stacks in a single column inside it. */
   .app-shell {
-    display: flex;
-    flex-direction: column; /* ← chat on top, ledger below */
-    width: 100%;
-    height: auto;           /* ← grows to fit chat + ledger */
-    min-height: 100dvh;
-    border-radius: 0;
-    border: none;
-    background: var(--bg-glass);
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: 100dvh !important;
+    max-width: 100% !important;
+    overflow-y: auto !important;             /* ← THIS scrolls on mobile */
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important; /* iOS momentum scroll */
+    border-radius: 0 !important;
+    border: none !important;
+    padding: 0 !important;
   }
 
-  /* 3. Sidebar → horizontal top nav bar */
+  /* 3. Sidebar → sticky horizontal top nav bar */
   .sidebar {
-    flex-direction: row;
-    flex-shrink: 0;
-    width: 100%;
-    height: auto;
-    padding: 10px 16px;
-    gap: 12px;
-    border-right: none;
-    border-bottom: 1px solid var(--border-light);
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    flex-direction: row !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 10px 16px !important;
+    gap: 16px !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-light) !important;
+    background: rgba(10, 16, 32, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
   }
-  .brand-logo { margin-right: auto; }
+  .brand-logo { margin-right: auto !important; }
 
-  /* 4. Chat panel: fixed height so input bar always stays visible */
+  /* 4. Chat panel: fixed viewport height, column layout */
   .center-panel {
-    flex-shrink: 0;
-    width: 100%;
-    height: 75dvh;          /* ← chat takes 75% of the viewport */
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    height: 100dvh !important;  /* ← occupies full viewport height */
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
   }
 
-  /* 5. Live Ledger: full width, auto height → ALL cards visible */
+  /* 5. Messages: scrolls internally within the chat panel */
+  .messages {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 16px !important;
+    gap: 16px !important;
+  }
+
+  /* 6. Input bar: sticky at the bottom of the VIEWPORT
+     User can scroll the app-shell, but the bar stays put. */
+  .input-area {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 99 !important;
+    flex-shrink: 0 !important;
+    padding: 10px 14px 18px !important;
+    background: rgba(2, 6, 23, 0.97) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+
+  /* 7. Live Ledger: full width, auto height so ALL cards render */
   .ledger-panel {
-    flex-shrink: 0;
-    width: 100%;
-    height: auto;           /* ← expands to fit all cards */
-    min-height: 0;
-    border-left: none;
-    border-top: 1px solid var(--border-light);
-    /* No max-height cap — user scrolls the page to read it */
+    flex-shrink: 0 !important;  /* never collapse */
+    width: 100% !important;
+    height: auto !important;    /* grows to fit all cards */
+    border-left: none !important;
+    border-top: 1px solid var(--border-light) !important;
+    overflow: visible !important;
   }
 
-  /* 6. Ledger content: no internal scroll, render everything */
+  /* 8. Ledger content: no internal clipping, page (app-shell) scrolls */
   .ledger-content {
-    flex: unset;
-    height: auto;
-    overflow-y: visible;    /* ← all cards are rendered, page scrolls */
-    padding: 16px 14px;
-    gap: 14px;
+    flex: unset !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 16px 14px 32px !important; /* extra bottom padding */
+    gap: 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
-  /* 7. Tighter padding on small screens */
-  .messages    { padding: 16px; gap: 16px; }
-  .input-area  { padding: 12px 16px 20px; }
+  /* 9. Cards: never collapse */
+  .ledger-card {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
 }
 
 /* ═══════════════════════════════════════

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FinAI Terminal</title>
-  <link rel="stylesheet" href="style.css?v=5.0" />
+  <link rel="stylesheet" href="style.css?v=6.0" />
 </head>
 <body>
 
@@ -108,8 +108,8 @@
         <div class="ledger-card">
           <h3>Interest Trajectory</h3>
           <div class="sparkline-container">
-            <div class="spark-principal" id="spark-p" style="width: 0%"></div>
-            <div class="spark-interest" id="spark-i" style="width: 0%"></div>
+            <div class="spark-principal" id="spark-p" style="transform: scaleX(0)"></div>
+            <div class="spark-interest" id="spark-i" style="transform: scaleX(0)"></div>
           </div>
           <div class="spark-legend">
             <span>Principal</span>
@@ -121,6 +121,6 @@
 
   </div>
 
-  <script src="app.js?v=5.1"></script>
+  <script src="app.js?v=5.2"></script>
 </body>
 </html>
