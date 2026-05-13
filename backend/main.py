@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, field_validator
 import os
+from typing import Optional
 from contextlib import asynccontextmanager
 
 from emi import LoanInput, LoanResult, process_loan, calculate_scenarios
