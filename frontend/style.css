@@ -510,27 +510,24 @@ body {
   display: flex;
   margin-top: 14px;
 }
-/* ── Interest sparkline ──
-   Use transform:scaleX() instead of width transition.
-   scaleX is GPU-composited → zero layout reflow → no jank.
-   transform-origin:left so it expands left-to-right.
+/* ── Interest sparkline bars ──
+   width: X% sets each bar's share of the container.
+   Both bars side-by-side in a flex row add up to 100%.
+   Simple width transition works perfectly here.
 ── */
 .spark-principal {
   height: 100%;
+  width: 0%;                              /* start at 0, JS animates to X% */
   background: var(--success);
-  /* Set width once, then animate via transform */
-  transform-origin: left center;
-  transform: scaleX(0);
-  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
+  transition: width 1s ease-in-out;
+  flex-shrink: 0;
 }
 .spark-interest {
   height: 100%;
+  width: 0%;
   background: var(--danger);
-  transform-origin: left center;
-  transform: scaleX(0);
-  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s; /* slight stagger */
-  will-change: transform;
+  transition: width 1s ease-in-out 0.05s; /* tiny stagger */
+  flex-shrink: 0;
 }
 
 .spark-legend {
