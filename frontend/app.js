@@ -113,13 +113,13 @@ function updateLedger(data) {
     ledgRiskDot.className = `risk-dot ${data.risk_level.toLowerCase()}`;
   }
 
-  // Sparkline
-  const total = data.total_payment || 1;
-  const pPct  = ((data.principal    / total) * 100).toFixed(1);
-  const iPct  = ((data.total_interest / total) * 100).toFixed(1);
-  // Animate width (correct for side-by-side flex bar chart)
-  if (sparkP) sparkP.style.width = `${pPct}%`;
-  if (sparkI) sparkI.style.width = `${iPct}%`;
+  // Overlay sparkline: red container = full bar (interest burden)
+  // Green .spark-principal overlays from left showing principal share.
+  const total    = data.total_payment || 1;
+  const pPct     = Math.min(100, Math.max(0, (data.principal / total) * 100));
+  console.log(`[FinAI Sparkline] principal%=${pPct.toFixed(1)} total=${total}`);
+  if (sparkP) sparkP.style.width = `${pPct.toFixed(1)}%`;
+  // sparkI is display:none — the red container IS the interest bar
 
   // Scenarios
   if (data.scenarios && ledgerScenarios) {

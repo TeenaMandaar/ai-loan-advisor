@@ -510,24 +510,33 @@ body {
   display: flex;
   margin-top: 14px;
 }
-/* ── Interest sparkline bars ──
-   width: X% sets each bar's share of the container.
-   Both bars side-by-side in a flex row add up to 100%.
-   Simple width transition works perfectly here.
-── */
+/* ── Interest sparkline ──────────────────────────────────────────
+   Overlay approach:
+   - Container background = red (full interest burden)
+   - .spark-principal overlays from left in green (principal share)
+   - No flex width math needed; JS just sets one width.
+   Works reliably on all browsers and screen sizes.
+───────────────────────────────────────────────────────────────── */
+.sparkline-container {
+  position: relative;          /* ← needed for absolute child */
+  width: 100%;
+  height: 10px;                /* taller for visibility on mobile */
+  border-radius: 5px;
+  background: var(--danger);   /* red = interest burden fills whole bar */
+  overflow: visible;           /* no clipping */
+  margin-top: 14px;
+  display: block;              /* no flex, no percentage flex quirks */
+}
 .spark-principal {
-  height: 100%;
-  width: 0%;                              /* start at 0, JS animates to X% */
-  background: var(--success);
-  transition: width 1s ease-in-out;
-  flex-shrink: 0;
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0%;                   /* JS animates this to principal % */
+  background: var(--success);  /* green = principal share */
+  border-radius: 5px;
+  transition: width 1.2s ease-in-out;
 }
 .spark-interest {
-  height: 100%;
-  width: 0%;
-  background: var(--danger);
-  transition: width 1s ease-in-out 0.05s; /* tiny stagger */
-  flex-shrink: 0;
+  display: none;               /* container background IS the interest bar */
 }
 
 .spark-legend {
@@ -551,40 +560,44 @@ body {
 /* ═══════════════════════════════════════
    RESPONSIVE — MOBILE (≤ 768px)
 
-   STRATEGY: Keep html/body locked (overflow:hidden) to preserve
-   the desktop floating-island look. Instead, make .app-shell the
-   scroll container on mobile. The input bar is position:sticky
-   so it stays pinned to the bottom of the viewport while the
-   user scrolls through messages and Live Ledger cards.
+   STRATEGY: Override html AND body to allow page-level scroll.
+   This is the most reliable approach across iOS Safari and Android.
 ═══════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* 1. body: block layout, no flex centering */
+  /* 0. BOTH html and body must allow scroll — !important overrides global reset */
+  html {
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
   body {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     padding: 0 !important;
-    height: 100dvh !important;
-    overflow: hidden !important; /* body stays locked; app-shell scrolls */
+    -webkit-overflow-scrolling: touch !important;
   }
 
-  /* 2. APP-SHELL is the scroll container ─────────────────────────
-     height: 100dvh + overflow-y: auto = the shell scrolls.
-     Everything stacks in a single column inside it. */
+  /* 1. App shell: single column, grows to fit all content */
   .app-shell {
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
-    height: 100dvh !important;
+    height: auto !important;
+    min-height: 100dvh !important;
     max-width: 100% !important;
-    overflow-y: auto !important;             /* ← THIS scrolls on mobile */
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important; /* iOS momentum scroll */
+    overflow: visible !important;
     border-radius: 0 !important;
     border: none !important;
     padding: 0 !important;
   }
 
-  /* 3. Sidebar → sticky horizontal top nav bar */
+  /* 2. Sidebar → sticky horizontal top nav */
   .sidebar {
     position: sticky !important;
     top: 0 !important;
@@ -597,23 +610,23 @@ body {
     gap: 16px !important;
     border-right: none !important;
     border-bottom: 1px solid var(--border-light) !important;
-    background: rgba(10, 16, 32, 0.95) !important;
+    background: rgba(10, 16, 32, 0.98) !important;
     backdrop-filter: blur(20px) !important;
   }
   .brand-logo { margin-right: auto !important; }
 
-  /* 4. Chat panel: fixed viewport height, column layout */
+  /* 3. Chat panel — fixed viewport height so input is always visible */
   .center-panel {
     flex-shrink: 0 !important;
     width: 100% !important;
-    height: 100dvh !important;  /* ← occupies full viewport height */
+    height: 85dvh !important;
     min-height: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: visible !important;
   }
 
-  /* 5. Messages: scrolls internally within the chat panel */
+  /* 4. Messages scroll internally */
   .messages {
     flex: 1 1 0 !important;
     min-height: 0 !important;
@@ -622,44 +635,52 @@ body {
     gap: 16px !important;
   }
 
-  /* 6. Input bar: sticky at the bottom of the VIEWPORT
-     User can scroll the app-shell, but the bar stays put. */
+  /* 5. Input bar: sticky at bottom of viewport */
   .input-area {
     position: sticky !important;
     bottom: 0 !important;
     z-index: 99 !important;
     flex-shrink: 0 !important;
-    padding: 10px 14px 18px !important;
-    background: rgba(2, 6, 23, 0.97) !important;
+    padding: 10px 14px 20px !important;
+    background: rgba(2, 6, 23, 0.98) !important;
     backdrop-filter: blur(20px) !important;
   }
 
-  /* 7. Live Ledger: full width, auto height so ALL cards render */
+  /* 6. Live Ledger: full width, auto height so ALL cards render */
   .ledger-panel {
-    flex-shrink: 0 !important;  /* never collapse */
+    flex-shrink: 0 !important;
     width: 100% !important;
-    height: auto !important;    /* grows to fit all cards */
+    height: auto !important;
     border-left: none !important;
     border-top: 1px solid var(--border-light) !important;
     overflow: visible !important;
   }
 
-  /* 8. Ledger content: no internal clipping, page (app-shell) scrolls */
+  /* 7. Ledger content scrolls with the page */
   .ledger-content {
     flex: unset !important;
     height: auto !important;
     overflow: visible !important;
-    padding: 16px 14px 32px !important; /* extra bottom padding */
+    padding: 16px 14px 40px !important;
     gap: 14px !important;
     display: flex !important;
     flex-direction: column !important;
   }
 
-  /* 9. Cards: never collapse */
+  /* 8. Cards never collapse */
   .ledger-card {
     flex-shrink: 0 !important;
     width: 100% !important;
-    display: block !important;
+    overflow: visible !important;  /* don't clip sparkline */
+  }
+
+  /* 9. Sparkline bigger on mobile */
+  .sparkline-container {
+    height: 14px !important;
+    border-radius: 7px !important;
+  }
+  .spark-principal {
+    border-radius: 7px !important;
   }
 }
 
