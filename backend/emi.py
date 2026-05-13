@@ -145,6 +145,41 @@ def process_loan(input_data: LoanInput) -> LoanResult:
     )
 
 
+def calculate_scenarios(input_data: LoanInput) -> dict[str, LoanResult]:
+    """
+    Generates 3 scenarios based on the user's input:
+    1. 'Aggressive' (Lower tenure, higher EMI, least interest)
+    2. 'Balanced' (The user's original request)
+    3. 'Relaxed' (Higher tenure, lower EMI, most interest)
+    """
+    scenarios = {}
+    
+    # 1. Aggressive (20% shorter tenure)
+    agg_tenure = max(1.0, input_data.tenure_years * 0.8)
+    scenarios["aggressive"] = process_loan(LoanInput(
+        principal=input_data.principal,
+        annual_rate=input_data.annual_rate,
+        tenure_years=agg_tenure,
+        monthly_income=input_data.monthly_income,
+        existing_emi=input_data.existing_emi
+    ))
+
+    # 2. Balanced (User's input)
+    scenarios["balanced"] = process_loan(input_data)
+
+    # 3. Relaxed (20% longer tenure)
+    rel_tenure = input_data.tenure_years * 1.2
+    scenarios["relaxed"] = process_loan(LoanInput(
+        principal=input_data.principal,
+        annual_rate=input_data.annual_rate,
+        tenure_years=rel_tenure,
+        monthly_income=input_data.monthly_income,
+        existing_emi=input_data.existing_emi
+    ))
+
+    return scenarios
+
+
 # ── Quick standalone test ─────────────────────────────────────────────────────
 if __name__ == "__main__":
     sample = LoanInput(

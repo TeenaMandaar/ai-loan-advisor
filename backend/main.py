@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, field_validator
 import os
 from contextlib import asynccontextmanager
 
-from emi import LoanInput, LoanResult, process_loan
+from emi import LoanInput, LoanResult, process_loan, calculate_scenarios
 from groq_chat import analyze_user_message
 from database import init_db, save_message, get_chat_history, clear_chat_history
 
@@ -80,6 +80,7 @@ class CalculateResponse(BaseModel):
     total_payment_formatted: str
     total_interest_formatted: str
     summary: str
+    scenarios: Optional[dict[str, dict]] = None
 
 
 def format_inr(amount: float) -> str:
@@ -228,6 +229,17 @@ async def chat_with_advisor(req: ChatRequest):
             
         result = process_loan(loan_input)
         
+        scenarios_data = calculate_scenarios(loan_input)
+        
+        def to_dict(res: LoanResult):
+            return {
+                "emi": res.emi,
+                "emi_formatted": format_inr(res.emi),
+                "total_interest_formatted": format_inr(res.total_interest),
+                "tenure_years": res.tenure_years,
+                "risk_level": res.risk_level
+            }
+
         calc_response = CalculateResponse(
             emi=result.emi,
             total_payment=result.total_payment,
@@ -246,6 +258,7 @@ async def chat_with_advisor(req: ChatRequest):
             total_payment_formatted=format_inr(result.total_payment),
             total_interest_formatted=format_inr(result.total_interest),
             summary=analysis.get("reply", "Analysis complete."),
+            scenarios={k: to_dict(v) for k, v in scenarios_data.items()}
         )
         
         # Save bot insight to DB without HTML

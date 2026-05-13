@@ -8,23 +8,16 @@ const btnClear = document.getElementById('btn-clear');
 // Ledger Elements
 const ledgPrincipal = document.getElementById('ledg-principal');
 const ledgTenure = document.getElementById('ledg-tenure');
+const ledgRate = document.getElementById('ledg-rate');
 const ledgEmi = document.getElementById('ledg-emi');
+const ledgInterest = document.getElementById('ledg-interest');
 const ledgDti = document.getElementById('ledg-dti');
 const ledgRiskText = document.getElementById('ledg-risk-text');
 const ledgRiskDot = document.getElementById('ledg-risk-dot');
 const sparkP = document.getElementById('spark-p');
 const sparkI = document.getElementById('spark-i');
 
-// Scenario Elements
-const ledgerScenarios = document.getElementById('ledger-scenarios');
-const scenAggEmi = document.getElementById('scen-agg-emi');
-const scenAggTen = document.getElementById('scen-agg-ten');
-const scenBalEmi = document.getElementById('scen-bal-emi');
-const scenBalTen = document.getElementById('scen-bal-ten');
-const scenRelEmi = document.getElementById('scen-rel-emi');
-const scenRelTen = document.getElementById('scen-rel-ten');
-
-const API_BASE = window.location.origin;
+const API_BASE = 'http://127.0.0.1:8000';
 let isTyping = false;
 
 // Formatters
@@ -73,39 +66,26 @@ function appendMessage(role, content) {
 
 function updateLedger(data) {
   if (!data) return;
-  
-  // Main card
   ledgPrincipal.textContent = fmt.format(data.principal);
   ledgTenure.textContent = `${data.tenure_years} yrs`;
+  ledgRate.textContent = `${data.annual_rate}%`;
   ledgEmi.textContent = data.emi_formatted;
+  ledgInterest.textContent = data.total_interest_formatted;
   
   ledgDti.textContent = `${data.dti_ratio}%`;
   
-  // Risk Pill
+  // Update Risk Pill
   ledgRiskText.textContent = data.risk_level;
   const riskClass = data.risk_level.toLowerCase();
   ledgRiskDot.className = `risk-dot ${riskClass}`;
 
-  // Sparkline
+  // Draw Sparkline
   const total = data.total_payment;
   const pPercent = (data.principal / total) * 100;
   const iPercent = (data.total_interest / total) * 100;
+  
   sparkP.style.width = `${pPercent}%`;
   sparkI.style.width = `${iPercent}%`;
-
-  // Scenarios
-  if (data.scenarios) {
-    ledgerScenarios.style.display = 'block';
-    
-    scenAggEmi.textContent = data.scenarios.aggressive.emi_formatted;
-    scenAggTen.textContent = `${data.scenarios.aggressive.tenure_years.toFixed(1)} yrs`;
-    
-    scenBalEmi.textContent = data.scenarios.balanced.emi_formatted;
-    scenBalTen.textContent = `${data.scenarios.balanced.tenure_years.toFixed(1)} yrs`;
-    
-    scenRelEmi.textContent = data.scenarios.relaxed.emi_formatted;
-    scenRelTen.textContent = `${data.scenarios.relaxed.tenure_years.toFixed(1)} yrs`;
-  }
 }
 
 async function sendMessage() {
@@ -141,6 +121,7 @@ async function sendMessage() {
 
     if (data.type === 'calculate' && data.calculation_result) {
       updateLedger(data.calculation_result);
+      // The AI only speaks insights now
       appendMessage('bot', data.reply || data.calculation_result.summary);
     } else {
       appendMessage('bot', data.reply || "I didn't quite catch that.");
