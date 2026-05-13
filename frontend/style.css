@@ -73,16 +73,16 @@ body {
 }
 
 /* ═══════════════════════════════════════
-   APP SHELL  (3-column grid)
+   APP SHELL  (3-column layout)
 ═══════════════════════════════════════ */
 .app-shell {
   width: 100%;
   max-width: 1440px;
   height: 100%;           /* fills the centred flex item */
 
-  display: grid;
-  grid-template-columns: 72px 1fr 360px;
-  grid-template-rows: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
 
   background: var(--bg-glass);
   backdrop-filter: blur(28px);
@@ -90,13 +90,14 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.08);
-  overflow: hidden;
 }
 
 /* ═══════════════════════════════════════
    LEFT SIDEBAR (nav icons)
 ═══════════════════════════════════════ */
 .sidebar {
+  width: 72px;
+  flex-shrink: 0;
   background: rgba(0, 0, 0, 0.25);
   border-right: 1px solid var(--border-light);
   display: flex;
@@ -144,10 +145,13 @@ body {
    the container — only on .messages
 ═══════════════════════════════════════ */
 .center-panel {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;           /* fill the grid row */
+  height: 100%;           /* fill the row */
   min-height: 0;          /* allow children to shrink */
+  overflow: hidden;
 }
 
 /* ── Top bar ── */
@@ -331,6 +335,8 @@ body {
    flex-shrink:0, content scrolls.
 ═══════════════════════════════════════ */
 .ledger-panel {
+  width: 360px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -511,32 +517,34 @@ body {
   margin-top: 14px;
 }
 /* ── Interest sparkline ──────────────────────────────────────────
-   Overlay approach:
-   - Container background = red (full interest burden)
-   - .spark-principal overlays from left in green (principal share)
-   - No flex width math needed; JS just sets one width.
-   Works reliably on all browsers and screen sizes.
+   Side-by-side flex approach as requested.
 ───────────────────────────────────────────────────────────────── */
 .sparkline-container {
-  position: relative;          /* ← needed for absolute child */
   width: 100%;
-  height: 10px;                /* taller for visibility on mobile */
+  height: 10px;
   border-radius: 5px;
-  background: var(--danger);   /* red = interest burden fills whole bar */
-  overflow: visible;           /* no clipping */
+  background: rgba(0,0,0,0.4);
+  overflow: visible;
   margin-top: 14px;
-  display: block;              /* no flex, no percentage flex quirks */
+  display: flex;
 }
 .spark-principal {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 0%;                   /* JS animates this to principal % */
-  background: var(--success);  /* green = principal share */
-  border-radius: 5px;
-  transition: width 1.2s ease-in-out;
+  height: 100%;
+  width: 0%;
+  background: var(--success);
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  transition: width 1s ease-in-out;
+  flex-shrink: 0;
 }
 .spark-interest {
-  display: none;               /* container background IS the interest bar */
+  height: 100%;
+  width: 0%;
+  background: var(--danger);
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  transition: width 1s ease-in-out;
+  flex-shrink: 0;
 }
 
 .spark-legend {
