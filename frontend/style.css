@@ -584,3 +584,65 @@ body {
   .input-area { padding: 12px 16px 20px; }
   .ledger-content { padding: 14px 12px; }
 }
+
+/* ═══════════════════════════════════════
+   SKELETON LOADERS
+   Shown in ledger cards before first API
+   response arrives.
+═══════════════════════════════════════ */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  display: inline-block;
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.05) 25%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.05) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.6s ease infinite;
+}
+/* Apply to individual stat values when no data yet */
+.stat-value.skeleton,
+.scen-val.skeleton { width: 70px; height: 14px; border-radius: 6px; }
+.stat-accent.skeleton { width: 100px; height: 20px; }
+
+/* ═══════════════════════════════════════
+   DYNAMIC DTI RATIO COLOURS
+   Applied via JS: applyDtiColour()
+═══════════════════════════════════════ */
+.dti-value            { font-family: var(--font-mono); font-weight: 700; font-size: 15px; }
+.dti-value.dti-low      { color: var(--success); }
+.dti-value.dti-moderate { color: var(--warning); }
+.dti-value.dti-high     { color: var(--danger);  text-shadow: 0 0 8px rgba(239,68,68,0.4); }
+
+/* ═══════════════════════════════════════
+   TYPING INDICATOR (bouncing dots)
+═══════════════════════════════════════ */
+.typing-pulse {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 22px;
+  min-width: 68px;
+}
+.typing-pulse span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: bounce 1.2s ease infinite;
+}
+.typing-pulse span:nth-child(2) { animation-delay: 0.2s; }
+.typing-pulse span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0);   opacity: 0.4; }
+  40%           { transform: translateY(-6px); opacity: 1;   }
+}
+
