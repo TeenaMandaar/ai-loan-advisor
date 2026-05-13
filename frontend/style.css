@@ -72,9 +72,40 @@ body {
 }
 
 @media (max-width: 900px) {
-  body { padding: 0; }
-  .app-shell { border-radius: 0; grid-template-columns: 1fr; border: none; }
-  .sidebar, .ledger-panel { display: none !important; }
+  body { 
+    padding: 0; 
+    height: 100dvh; 
+    overflow-y: auto; 
+    display: block;
+  }
+  .app-shell { 
+    display: flex; 
+    flex-direction: column; 
+    height: auto; 
+    min-height: 100dvh;
+    border-radius: 0; 
+    border: none; 
+  }
+  .sidebar { 
+    flex-direction: row; 
+    padding: 12px 20px; 
+    gap: 16px; 
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-glass-heavy);
+  }
+  .brand-logo { margin-right: auto; }
+  .center-panel { 
+    height: 75dvh; 
+    flex: none; 
+  }
+  .ledger-panel { 
+    height: auto; 
+    border-left: none; 
+    border-top: 1px solid var(--border-light); 
+  }
+  .input-area { padding: 16px 20px 24px 20px; }
+  .messages { padding: 20px; }
 }
 
 /* Left Sidebar */
@@ -122,6 +153,8 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
+  min-height: 0; /* Fixes flexbox overflow pushing the input box out */
+  overflow: hidden;
 }
 
 .top-bar {
@@ -289,6 +322,8 @@ body {
   border-left: 1px solid var(--border-light);
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 .ledger-header {
   height: 80px;
