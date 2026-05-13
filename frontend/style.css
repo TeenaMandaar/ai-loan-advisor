@@ -324,17 +324,18 @@ body {
   border-left: 1px solid var(--border-light);
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
+  min-height: 0;        /* allow shrinking in flex parent */
+  overflow: visible;    /* don't clip children */
 }
 .ledger-header {
-  height: 80px;
+  height: 64px;
+  flex-shrink: 0;       /* header never shrinks */
   border-bottom: 1px solid var(--border-light);
   display: flex;
   align-items: center;
-  padding: 0 40px;
+  padding: 0 24px;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-main);
   text-transform: uppercase;
@@ -342,22 +343,28 @@ body {
   background: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent);
 }
 .ledger-content {
-  padding: 40px;
+  flex: 1 1 0;          /* take remaining space */
+  min-height: 0;        /* allow scrolling without overflow */
+  padding: 20px 16px;   /* reduced so cards fit the 400px sidebar */
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 16px;            /* tighter gap so all cards are visible */
   overflow-y: auto;
+  overflow-x: hidden;   /* no horizontal scroll */
 }
 
 .ledger-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-light);
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border-radius: 18px;  /* slightly tighter radius */
+  padding: 20px;        /* reduced from 32px to fit within sidebar */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;       /* cards don't collapse */
+  width: 100%;          /* never wider than parent */
+  box-sizing: border-box;
 }
 .ledger-card::before {
   content: '';
@@ -366,32 +373,33 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
 }
 .ledger-card h3 {
-  font-size: 13px;
+  font-size: 11px;
   font-family: var(--font-mono);
   font-weight: 600;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   letter-spacing: 1.5px;
 }
 .ledger-stat {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  font-size: 15px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  flex-wrap: wrap;      /* wrap on small screens instead of overflowing */
+  gap: 4px;
 }
 .ledger-stat:last-child { margin-bottom: 0; }
 
-.stat-label { color: var(--text-muted); font-weight: 400;}
-.stat-value { font-family: var(--font-mono); font-weight: 600; }
+.stat-label { color: var(--text-muted); font-weight: 400; font-size: 13px; }
+.stat-value { font-family: var(--font-mono); font-weight: 600; font-size: 14px; }
 .stat-accent { 
   background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700; 
-  font-size: 22px;
-  text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+  font-size: 18px;
 }
 
 /* Risk Pill */
