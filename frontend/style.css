@@ -553,56 +553,81 @@ body {
 
 /* ═══════════════════════════════════════
    RESPONSIVE — MOBILE (≤ 768px)
-   Stack: top-nav → chat → ledger
+   Layout: top-nav → chat (fixed height) → ledger (full, scrollable)
+   Desktop CSS is NOT touched — only overrides inside this block apply.
 ═══════════════════════════════════════ */
 @media (max-width: 768px) {
+
+  /* 1. Let the page scroll vertically so the ledger is reachable */
   body {
     padding: 0;
-    height: 100dvh;
-    overflow: hidden;
+    height: auto;           /* ← no fixed height, page can grow */
+    min-height: 100dvh;
+    overflow-y: auto;       /* ← page-level scroll reveals ledger */
+    overflow-x: hidden;
     align-items: stretch;
     justify-content: stretch;
+    display: block;         /* ← stop centring flex, let content stack */
   }
 
+  /* 2. App shell stacks in a single column, grows to fit all panels */
   .app-shell {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr auto;
+    display: flex;
+    flex-direction: column; /* ← chat on top, ledger below */
+    width: 100%;
+    height: auto;           /* ← grows to fit chat + ledger */
+    min-height: 100dvh;
     border-radius: 0;
     border: none;
-    height: 100dvh;
+    background: var(--bg-glass);
   }
 
-  /* Sidebar becomes top nav bar */
+  /* 3. Sidebar → horizontal top nav bar */
   .sidebar {
     flex-direction: row;
+    flex-shrink: 0;
+    width: 100%;
     height: auto;
     padding: 10px 16px;
     gap: 12px;
     border-right: none;
     border-bottom: 1px solid var(--border-light);
-    grid-row: 1;
   }
   .brand-logo { margin-right: auto; }
 
-  /* Chat fills the middle */
+  /* 4. Chat panel: fixed height so input bar always stays visible */
   .center-panel {
-    grid-row: 2;
-    height: 100%;
+    flex-shrink: 0;
+    width: 100%;
+    height: 75dvh;          /* ← chat takes 75% of the viewport */
     min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* Ledger goes below chat — scrollable */
+  /* 5. Live Ledger: full width, auto height → ALL cards visible */
   .ledger-panel {
-    grid-row: 3;
+    flex-shrink: 0;
+    width: 100%;
+    height: auto;           /* ← expands to fit all cards */
+    min-height: 0;
     border-left: none;
     border-top: 1px solid var(--border-light);
-    max-height: 45dvh;
-    min-height: 0;
+    /* No max-height cap — user scrolls the page to read it */
   }
 
-  .messages { padding: 20px; gap: 20px; }
-  .input-area { padding: 12px 16px 20px; }
-  .ledger-content { padding: 14px 12px; }
+  /* 6. Ledger content: no internal scroll, render everything */
+  .ledger-content {
+    flex: unset;
+    height: auto;
+    overflow-y: visible;    /* ← all cards are rendered, page scrolls */
+    padding: 16px 14px;
+    gap: 14px;
+  }
+
+  /* 7. Tighter padding on small screens */
+  .messages    { padding: 16px; gap: 16px; }
+  .input-area  { padding: 12px 16px 20px; }
 }
 
 /* ═══════════════════════════════════════
