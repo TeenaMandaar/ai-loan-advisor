@@ -558,6 +558,14 @@ body {
 ═══════════════════════════════════════ */
 @media (max-width: 768px) {
 
+  /* 0. CRITICAL: override the global html { overflow: hidden } that blocks mobile scroll */
+  html {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* smooth momentum scroll on iOS */
+  }
+
   /* 1. Let the page scroll vertically so the ledger is reachable */
   body {
     padding: 0;
