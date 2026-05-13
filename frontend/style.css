@@ -510,8 +510,28 @@ body {
   display: flex;
   margin-top: 14px;
 }
-.spark-principal { height: 100%; background: var(--success); transition: width 1.2s ease; }
-.spark-interest  { height: 100%; background: var(--danger);  transition: width 1.2s ease; }
+/* ── Interest sparkline ──
+   Use transform:scaleX() instead of width transition.
+   scaleX is GPU-composited → zero layout reflow → no jank.
+   transform-origin:left so it expands left-to-right.
+── */
+.spark-principal {
+  height: 100%;
+  background: var(--success);
+  /* Set width once, then animate via transform */
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.spark-interest {
+  height: 100%;
+  background: var(--danger);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s; /* slight stagger */
+  will-change: transform;
+}
 
 .spark-legend {
   display: flex;

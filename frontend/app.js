@@ -117,8 +117,9 @@ function updateLedger(data) {
   const total = data.total_payment || 1;
   const pPct  = ((data.principal    / total) * 100).toFixed(1);
   const iPct  = ((data.total_interest / total) * 100).toFixed(1);
-  if (sparkP) sparkP.style.width = `${pPct}%`;
-  if (sparkI) sparkI.style.width = `${iPct}%`;
+  // Use scaleX (GPU-composited) instead of width to prevent layout reflow
+  if (sparkP) sparkP.style.transform = `scaleX(${(pPct/100).toFixed(3)})`;
+  if (sparkI) sparkI.style.transform = `scaleX(${(iPct/100).toFixed(3)})`;
 
   // Scenarios
   if (data.scenarios && ledgerScenarios) {
