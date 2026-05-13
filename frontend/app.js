@@ -43,8 +43,25 @@ userInput.addEventListener('keydown', (e) => {
   }
 });
 
-btnSend.addEventListener('click', () => {
-  if (!btnSend.disabled) sendMessage();
+btnSend.addEventListener('mousedown', (e) => {
+  // Prevent the button from taking focus away from the textarea
+  e.preventDefault(); 
+});
+
+btnSend.addEventListener('touchstart', (e) => {
+  // Also prevent focus loss on mobile touch
+  e.preventDefault(); 
+  if (!btnSend.disabled) {
+    sendMessage();
+    userInput.focus();
+  }
+});
+
+btnSend.addEventListener('click', (e) => {
+  if (!btnSend.disabled) {
+    sendMessage();
+    userInput.focus();
+  }
 });
 
 function appendMessage(role, content) {
